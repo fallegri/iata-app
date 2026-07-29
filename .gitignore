@@ -5,6 +5,9 @@ node_modules/
 dist/
 *.tsbuildinfo
 
+# Keep api/ directory (Vercel serverless function entry point)
+!api/
+
 # Environment
 .env
 .env.local

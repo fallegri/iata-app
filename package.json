@@ -11,9 +11,11 @@
   "scripts": {
     "dev:client": "npm run dev -w client",
     "dev:server": "npm run dev -w server",
+    "build": "npm run build -w shared && npm run build -w server && npm run build -w client",
     "build:client": "npm run build -w client",
     "build:server": "npm run build -w server",
     "build:shared": "npm run build -w shared",
+    "vercel-build": "npm run build -w shared && npm run build -w server && npm run build -w client",
     "test": "npm run test -w server",
     "test:server": "npm run test -w server"
   },
