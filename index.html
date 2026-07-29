@@ -1,0 +1,731 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+  :root{
+    --paper: #EEF0EA;
+    --paper-raised: #F7F8F3;
+    --ink: #1C2541;
+    --ink-soft: #57607a;
+    --brass: #A6743C;
+    --brass-soft: #C79A5F;
+    --verified: #3F6350;
+    --alert: #B5533C;
+    --line: #D3D6C7;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  #root{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding: 40px 20px 60px;
+  }
+  .wrap{ width:100%; max-width: 620px; }
+
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color: var(--brass);
+    margin:0 0 10px;
+  }
+  h1.title{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size: 34px;
+    line-height:1.12;
+    margin:0 0 6px;
+    letter-spacing:-0.01em;
+  }
+  .subtitle{
+    color: var(--ink-soft);
+    font-size:15px;
+    line-height:1.5;
+    margin:0 0 34px;
+    max-width:46ch;
+  }
+
+  .doc{
+    background: var(--paper-raised);
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding: 30px 28px;
+    position:relative;
+    box-shadow: 0 1px 0 rgba(28,37,65,0.03);
+  }
+  .doc::before{
+    content:"";
+    position:absolute; left:0; top:0; bottom:0;
+    width:3px;
+    background: var(--brass);
+  }
+
+  .choice-row{ display:flex; gap:14px; margin-top:6px; }
+  .choice-card{
+    flex:1;
+    background: var(--paper-raised);
+    border:1px solid var(--line);
+    border-radius:2px;
+    padding:24px 20px;
+    cursor:pointer;
+    text-align:left;
+    font-family:'Inter', sans-serif;
+    transition: border-color .15s ease, transform .15s ease;
+    position:relative;
+  }
+  .choice-card:hover{ border-color: var(--brass); transform: translateY(-2px); }
+  .choice-card .tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--brass); display:block; margin-bottom:10px;
+  }
+  .choice-card h3{
+    font-family:'Fraunces', serif;
+    font-size:20px; margin:0 0 6px; font-weight:600;
+  }
+  .choice-card p{ margin:0; font-size:13px; color:var(--ink-soft); line-height:1.45; }
+
+  label{
+    display:block;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    color: var(--ink-soft);
+    margin: 18px 0 6px;
+  }
+  label:first-of-type{ margin-top:0; }
+  input[type=text], input[type=email], input[type=password], textarea, select{
+    width:100%;
+    font-family:'Inter', sans-serif;
+    font-size:14.5px;
+    padding:11px 12px;
+    border:1px solid var(--line);
+    border-radius:2px;
+    background:#fff;
+    color:var(--ink);
+    outline:none;
+  }
+  input:focus, textarea:focus, select:focus{ border-color:var(--brass); }
+  textarea{ min-height:80px; resize:vertical; line-height:1.5; }
+  .hint{ font-size:12px; color:var(--ink-soft); margin-top:5px; line-height:1.4; }
+  .hint code{ background:var(--paper); padding:1px 5px; border-radius:2px; font-family:'IBM Plex Mono',monospace; }
+
+  .radio-row{ display:flex; gap:10px; margin-top:2px; }
+  .radio-opt{
+    flex:1; text-align:center; padding:10px; border:1px solid var(--line);
+    border-radius:2px; cursor:pointer; font-size:14px; background:#fff;
+  }
+  .radio-opt.active{ border-color: var(--verified); color:var(--verified); font-weight:600; background:#F1F6F2; }
+  .radio-opt.active.no{ border-color:var(--alert); color:var(--alert); background:#FBF1EE; }
+
+  .btn{
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+    font-size:14px;
+    padding:13px 22px;
+    border-radius:2px;
+    border:none;
+    cursor:pointer;
+    background: var(--ink);
+    color: #fff;
+    margin-top:24px;
+    width:100%;
+  }
+  .btn:hover{ background:#0f1730; }
+  .btn:disabled{ opacity:.5; cursor:not-allowed; }
+  .btn.secondary{
+    background:transparent; color:var(--ink); border:1px solid var(--line);
+  }
+  .btn.secondary:hover{ background:var(--paper); }
+  .btn.link{
+    background:none; border:none; color:var(--ink-soft); text-decoration:underline;
+    width:auto; padding:0; margin-top:14px; font-size:13px; cursor:pointer;
+  }
+
+  .toggle-row{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-top:20px; padding-top:16px; border-top:1px dashed var(--line);
+  }
+  .toggle-row span{ font-size:13.5px; font-weight:500; }
+  .switch{
+    width:38px; height:22px; border-radius:20px; background:var(--line);
+    position:relative; cursor:pointer; flex-shrink:0;
+  }
+  .switch.on{ background: var(--verified); }
+  .switch::after{
+    content:""; position:absolute; top:2px; left:2px; width:18px; height:18px;
+    border-radius:50%; background:#fff; transition:transform .15s ease;
+  }
+  .switch.on::after{ transform:translateX(16px); }
+
+  .back-link{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px; color:var(--ink-soft); text-decoration:none;
+    display:inline-flex; align-items:center; gap:6px; margin-bottom:18px;
+    cursor:pointer; background:none; border:none; padding:0;
+  }
+  .back-link:hover{ color:var(--ink); }
+
+  .error-box{
+    background:#FBF1EE; border:1px solid var(--alert); color:var(--alert);
+    font-size:13px; padding:10px 12px; border-radius:2px; margin-top:14px;
+  }
+
+  .code-ticket{
+    margin-top:20px;
+    background: var(--ink);
+    color:#fff;
+    border-radius:3px;
+    padding:20px;
+    text-align:center;
+    position:relative;
+  }
+  .code-ticket .lbl{
+    font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--brass-soft); margin-bottom:8px;
+  }
+  .code-ticket .code{
+    font-family:'IBM Plex Mono',monospace; font-size:32px; letter-spacing:.12em; font-weight:600;
+  }
+  .course-meta{
+    margin-top:16px; font-size:13.5px; color:var(--ink-soft); line-height:1.7;
+  }
+  .course-meta b{ color:var(--ink); }
+
+  .seal-wrap{
+    display:flex; flex-direction:column; align-items:center; text-align:center;
+    padding: 30px 10px 10px;
+  }
+  .seal{
+    width:110px; height:110px; border-radius:50%;
+    border:3px solid var(--verified);
+    display:flex; align-items:center; justify-content:center;
+    transform: scale(0.4) rotate(-25deg); opacity:0;
+    animation: sealIn .5s cubic-bezier(.2,1.4,.4,1) forwards .1s;
+  }
+  @keyframes sealIn{ to{ transform:scale(1) rotate(-8deg); opacity:1; } }
+  .seal span{
+    font-family:'Fraunces', serif; font-weight:700; font-size:13px;
+    color:var(--verified); text-transform:uppercase; letter-spacing:.05em;
+    line-height:1.3;
+  }
+  .status-line{ font-size:13.5px; color:var(--ink-soft); margin-top:6px; }
+
+  .field-row{ display:flex; gap:12px; }
+  .field-row > div{ flex:1; }
+
+  ::selection{ background: var(--brass-soft); color:#fff; }
+  @media (max-width: 480px){
+    h1.title{ font-size:27px; }
+    .choice-row{ flex-direction:column; }
+    .doc{ padding:22px 18px; }
+  }
+</style>
+
+<div id="root"></div>
+
+<script>
+(function(){
+  const root = document.getElementById('root');
+  let state = { view: 'home', course: null, error: null, saving: false };
+
+  // ---------- storage helpers ----------
+  async function saveCourse(course){
+    return window.storage.set('course:' + course.code, JSON.stringify(course), true);
+  }
+  async function getCourse(code){
+    try{
+      const r = await window.storage.get('course:' + code, true);
+      return r ? JSON.parse(r.value) : null;
+    }catch(e){ return null; }
+  }
+  async function deleteCourseByCode(code){
+    try{ await window.storage.delete('course:' + code, true); }catch(e){}
+  }
+  function genCode(){
+    const chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // sin 0,O,1,I,L
+    let c = '';
+    for(let i=0;i<6;i++) c += chars[Math.floor(Math.random()*chars.length)];
+    return c;
+  }
+  async function genUniqueCode(){
+    let code = genCode(), tries = 0;
+    while(await getCourse(code) && tries < 8){ code = genCode(); tries++; }
+    return code;
+  }
+
+  // ---------- render engine ----------
+  function render(){
+    root.innerHTML = '';
+    const wrap = el('div', 'wrap');
+    root.appendChild(wrap);
+    const views = {
+      home: renderHome,
+      teacherCreate: renderTeacherCreate,
+      teacherCreated: renderTeacherCreated,
+      teacherManageLogin: renderTeacherManageLogin,
+      teacherEdit: renderTeacherEdit,
+      studentEntry: renderStudentEntry,
+      studentForm: renderStudentForm,
+      studentSuccess: renderStudentSuccess,
+    };
+    (views[state.view] || renderHome)(wrap);
+  }
+
+  function el(tag, cls, html){
+    const e = document.createElement(tag);
+    if(cls) e.className = cls;
+    if(html !== undefined) e.innerHTML = html;
+    return e;
+  }
+
+  function header(wrap, eyebrow, title, subtitle){
+    wrap.appendChild(el('p','eyebrow', eyebrow));
+    wrap.appendChild(el('h1','title', title));
+    if(subtitle) wrap.appendChild(el('p','subtitle', subtitle));
+  }
+
+  function backButton(wrap, label, view){
+    const b = el('button','back-link', '&larr;&nbsp; ' + label);
+    b.onclick = ()=>{ state.view = view; state.error = null; render(); };
+    wrap.appendChild(b);
+  }
+
+  // ---------- HOME ----------
+  function renderHome(wrap){
+    header(wrap, 'Instrumento abierto de transparencia académica',
+      'Declaración de uso de IA',
+      'Declarar el uso de inteligencia artificial no es una falta; ocultarlo sí puede serlo. Elige tu rol para continuar.');
+
+    const row = el('div','choice-row');
+
+    const t = el('div','choice-card');
+    t.innerHTML = '<span class="tag">Docente</span><h3>Crear o gestionar un curso</h3><p>Genera un código para tu curso y recibe las declaraciones directo en tu correo.</p>';
+    t.onclick = ()=>{ state.view='teacherCreate'; render(); };
+
+    const s = el('div','choice-card');
+    s.innerHTML = '<span class="tag">Estudiante</span><h3>Llenar una declaración</h3><p>Ingresa el código de tu curso y declara cómo usaste la IA en tu trabajo.</p>';
+    s.onclick = ()=>{ state.view='studentEntry'; render(); };
+
+    row.appendChild(t); row.appendChild(s);
+    wrap.appendChild(row);
+
+    const manage = el('button','back-link', 'Ya tengo un curso creado &rarr; gestionarlo');
+    manage.style.marginTop = '22px';
+    manage.onclick = ()=>{ state.view='teacherManageLogin'; render(); };
+    wrap.appendChild(manage);
+  }
+
+  // ---------- TEACHER: CREATE ----------
+  function renderTeacherCreate(wrap){
+    backButton(wrap, 'Inicio', 'home');
+    header(wrap, 'Docente', 'Crear un curso', 'Este curso tendrá un código único que compartirás con tus estudiantes.');
+
+    const doc = el('div','doc');
+
+    doc.appendChild(field('Nombre del curso', 'courseName', 'text', 'Ej. Ética Digital — Grupo A'));
+    doc.appendChild(field('Tu nombre', 'teacherName', 'text', 'Ej. Prof. Ana García'));
+    doc.appendChild(field('Tu correo', 'teacherEmail', 'email', 'ana.garcia@institucion.edu'));
+    doc.appendChild(field('Crea un PIN de 4 dígitos', 'pin', 'password', 'Para editar o borrar el curso luego'));
+
+    const toggleRow = el('div','toggle-row');
+    toggleRow.innerHTML = '<span>Configurar envío real por correo (EmailJS)</span>';
+    const sw = el('div','switch');
+    let emailjsOn = false;
+    sw.onclick = ()=>{ emailjsOn = !emailjsOn; sw.classList.toggle('on', emailjsOn); emailjsFields.style.display = emailjsOn ? 'block':'none'; };
+    toggleRow.appendChild(sw);
+    doc.appendChild(toggleRow);
+
+    const emailjsFields = el('div');
+    emailjsFields.style.display = 'none';
+    emailjsFields.appendChild(field('Service ID', 'serviceId', 'text', ''));
+    emailjsFields.appendChild(field('Template ID', 'templateId', 'text', ''));
+    emailjsFields.appendChild(field('Public Key', 'publicKey', 'text', ''));
+    const hint = el('p','hint', 'Tu plantilla de EmailJS debe usar estas variables: <code>to_email</code>, <code>to_name</code>, <code>course_name</code>, <code>student_name</code>, <code>student_email</code>, <code>used_ai</code>, <code>tool_used</code>, <code>what_learned</code>, <code>how_verified</code>, <code>submitted_at</code>.');
+    emailjsFields.appendChild(hint);
+    doc.appendChild(emailjsFields);
+
+    const errBox = el('div'); doc.appendChild(errBox);
+
+    const btn = el('button','btn','Crear curso');
+    btn.onclick = async ()=>{
+      const v = collect(doc, ['courseName','teacherName','teacherEmail','pin']);
+      if(!v.courseName || !v.teacherName || !v.teacherEmail){
+        showErr(errBox, 'Completa nombre del curso, tu nombre y tu correo.'); return;
+      }
+      if(!/^\d{4}$/.test(v.pin)){
+        showErr(errBox, 'El PIN debe tener exactamente 4 dígitos.'); return;
+      }
+      let emailjs = null;
+      if(emailjsOn){
+        const e = collect(doc, ['serviceId','templateId','publicKey']);
+        if(!e.serviceId || !e.templateId || !e.publicKey){
+          showErr(errBox, 'Completa los tres campos de EmailJS, o desactiva la opción.'); return;
+        }
+        emailjs = e;
+      }
+      btn.disabled = true; btn.textContent = 'Creando...';
+      const code = await genUniqueCode();
+      const course = {
+        code, courseName: v.courseName, teacherName: v.teacherName,
+        teacherEmail: v.teacherEmail, pin: v.pin, emailjs,
+        createdAt: new Date().toISOString()
+      };
+      await saveCourse(course);
+      state.course = course;
+      state.view = 'teacherCreated';
+      render();
+    };
+    doc.appendChild(btn);
+    wrap.appendChild(doc);
+  }
+
+  function renderTeacherCreated(wrap){
+    header(wrap, 'Docente', 'Curso creado', 'Comparte este código con tus estudiantes.');
+    const doc = el('div','doc');
+    const ticket = el('div','code-ticket');
+    ticket.innerHTML = '<div class="lbl">Código del curso</div><div class="code">' + state.course.code + '</div>';
+    doc.appendChild(ticket);
+    doc.appendChild(el('div','course-meta',
+      '<b>' + escapeHtml(state.course.courseName) + '</b><br>' +
+      escapeHtml(state.course.teacherName) + ' · ' + escapeHtml(state.course.teacherEmail) + '<br>' +
+      'Envío por correo: ' + (state.course.emailjs ? '<span style="color:var(--verified)">activo</span>' : '<span style="color:var(--alert)">no configurado (los estudiantes solo podrán descargar el PDF)</span>')
+    ));
+    doc.appendChild(el('p','hint','Guarda tu código y tu PIN — los necesitas para editar o borrar este curso más adelante.'));
+    const btn = el('button','btn','Ir al inicio');
+    btn.onclick = ()=>{ state.view='home'; render(); };
+    doc.appendChild(btn);
+    wrap.appendChild(doc);
+  }
+
+  // ---------- TEACHER: MANAGE ----------
+  function renderTeacherManageLogin(wrap){
+    backButton(wrap, 'Inicio', 'home');
+    header(wrap, 'Docente', 'Gestionar mi curso', 'Ingresa el código y el PIN con los que creaste el curso.');
+    const doc = el('div','doc');
+    doc.appendChild(field('Código del curso', 'code', 'text', 'Ej. K3P9RT'));
+    doc.appendChild(field('PIN', 'pin', 'password', ''));
+    const errBox = el('div'); doc.appendChild(errBox);
+    const btn = el('button','btn','Ingresar');
+    btn.onclick = async ()=>{
+      const v = collect(doc, ['code','pin']);
+      btn.disabled = true; btn.textContent = 'Verificando...';
+      const course = await getCourse((v.code||'').trim().toUpperCase());
+      btn.disabled = false; btn.textContent = 'Ingresar';
+      if(!course || course.pin !== v.pin){
+        showErr(errBox, 'Código o PIN incorrecto.'); return;
+      }
+      state.course = course;
+      state.view = 'teacherEdit';
+      render();
+    };
+    doc.appendChild(btn);
+    wrap.appendChild(doc);
+  }
+
+  function renderTeacherEdit(wrap){
+    backButton(wrap, 'Inicio', 'home');
+    const c = state.course;
+    header(wrap, 'Docente', 'Editar curso', 'Código: ' + c.code);
+    const doc = el('div','doc');
+    doc.appendChild(field('Nombre del curso', 'courseName', 'text', '', c.courseName));
+    doc.appendChild(field('Tu nombre', 'teacherName', 'text', '', c.teacherName));
+    doc.appendChild(field('Tu correo', 'teacherEmail', 'email', '', c.teacherEmail));
+
+    const toggleRow = el('div','toggle-row');
+    toggleRow.innerHTML = '<span>Envío real por correo (EmailJS)</span>';
+    const sw = el('div','switch' + (c.emailjs ? ' on' : ''));
+    let emailjsOn = !!c.emailjs;
+    sw.onclick = ()=>{ emailjsOn = !emailjsOn; sw.classList.toggle('on', emailjsOn); emailjsFields.style.display = emailjsOn ? 'block':'none'; };
+    toggleRow.appendChild(sw);
+    doc.appendChild(toggleRow);
+
+    const emailjsFields = el('div');
+    emailjsFields.style.display = emailjsOn ? 'block' : 'none';
+    emailjsFields.appendChild(field('Service ID', 'serviceId', 'text', '', c.emailjs ? c.emailjs.serviceId : ''));
+    emailjsFields.appendChild(field('Template ID', 'templateId', 'text', '', c.emailjs ? c.emailjs.templateId : ''));
+    emailjsFields.appendChild(field('Public Key', 'publicKey', 'text', '', c.emailjs ? c.emailjs.publicKey : ''));
+    doc.appendChild(emailjsFields);
+
+    const errBox = el('div'); doc.appendChild(errBox);
+
+    const btn = el('button','btn','Guardar cambios');
+    btn.onclick = async ()=>{
+      const v = collect(doc, ['courseName','teacherName','teacherEmail']);
+      if(!v.courseName || !v.teacherName || !v.teacherEmail){
+        showErr(errBox, 'Completa nombre del curso, tu nombre y tu correo.'); return;
+      }
+      let emailjs = null;
+      if(emailjsOn){
+        const e = collect(doc, ['serviceId','templateId','publicKey']);
+        if(!e.serviceId || !e.templateId || !e.publicKey){
+          showErr(errBox, 'Completa los tres campos de EmailJS, o desactiva la opción.'); return;
+        }
+        emailjs = e;
+      }
+      const updated = Object.assign({}, c, v, { emailjs });
+      await saveCourse(updated);
+      state.course = updated;
+      showErr(errBox, '', true);
+      const ok = el('p','hint'); ok.style.color = 'var(--verified)'; ok.textContent = 'Cambios guardados.';
+      doc.insertBefore(ok, btn);
+    };
+    doc.appendChild(btn);
+
+    const delBtn = el('button','btn secondary','Borrar curso');
+    delBtn.style.marginTop = '10px';
+    delBtn.onclick = async ()=>{
+      if(confirm('¿Borrar el curso "' + c.courseName + '"? Esta acción no se puede deshacer.')){
+        await deleteCourseByCode(c.code);
+        state.view='home'; render();
+      }
+    };
+    doc.appendChild(delBtn);
+
+    wrap.appendChild(doc);
+  }
+
+  // ---------- STUDENT ----------
+  function renderStudentEntry(wrap){
+    backButton(wrap, 'Inicio', 'home');
+    header(wrap, 'Estudiante', 'Ingresa tu curso', 'Pide el código a tu docente si no lo tienes.');
+    const doc = el('div','doc');
+    doc.appendChild(field('Código del curso', 'code', 'text', 'Ej. K3P9RT'));
+    const errBox = el('div'); doc.appendChild(errBox);
+    const btn = el('button','btn','Continuar');
+    btn.onclick = async ()=>{
+      const v = collect(doc, ['code']);
+      const code = (v.code||'').trim().toUpperCase();
+      if(!code){ showErr(errBox,'Ingresa un código.'); return; }
+      btn.disabled = true; btn.textContent = 'Buscando...';
+      const course = await getCourse(code);
+      btn.disabled = false; btn.textContent = 'Continuar';
+      if(!course){ showErr(errBox, 'No se encontró ningún curso con ese código.'); return; }
+      state.course = course;
+      state.view = 'studentForm';
+      render();
+    };
+    doc.appendChild(btn);
+    wrap.appendChild(doc);
+
+    try{
+      const params = new URLSearchParams(window.location.search);
+      const pre = params.get('code');
+      if(pre) doc.querySelector('[name=code]').value = pre.toUpperCase();
+    }catch(e){}
+  }
+
+  function renderStudentForm(wrap){
+    const c = state.course;
+    backButton(wrap, 'Cambiar de curso', 'studentEntry');
+    header(wrap, 'Estudiante · ' + c.courseName, 'Declaración de uso de IA', 'Docente: ' + c.teacherName);
+
+    const doc = el('div','doc');
+    doc.appendChild(field('Tu nombre completo', 'studentName', 'text', ''));
+    doc.appendChild(field('Tu correo (opcional)', 'studentEmail', 'email', ''));
+
+    doc.appendChild(el('label', '', '¿Utilizaste IA en este trabajo?'));
+    const radioRow = el('div','radio-row');
+    const yesOpt = el('div','radio-opt active','Sí');
+    const noOpt = el('div','radio-opt no','No');
+    let usedAI = true;
+    yesOpt.onclick = ()=>{ usedAI = true; yesOpt.classList.add('active'); noOpt.classList.remove('active'); detailFields.style.display='block'; };
+    noOpt.onclick = ()=>{ usedAI = false; noOpt.classList.add('active'); yesOpt.classList.remove('active'); detailFields.style.display='none'; };
+    radioRow.appendChild(yesOpt); radioRow.appendChild(noOpt);
+    doc.appendChild(radioRow);
+
+    const detailFields = el('div');
+    detailFields.appendChild(field('Herramienta utilizada', 'toolUsed', 'text', 'Ej. ChatGPT, Grammarly, DALL·E'));
+    detailFields.appendChild(fieldArea('¿Qué aprendiste?', 'whatLearned', 'Describe los aprendizajes y hallazgos obtenidos con el apoyo de la IA.'));
+    detailFields.appendChild(fieldArea('¿Cómo verificaste la respuesta?', 'howVerified', 'Explica cómo comprobaste la información y por qué confías en su validez.'));
+    doc.appendChild(detailFields);
+
+    const errBox = el('div'); doc.appendChild(errBox);
+
+    const btn = el('button','btn','Enviar declaración');
+    btn.onclick = async ()=>{
+      const v = collect(doc, ['studentName','studentEmail','toolUsed','whatLearned','howVerified']);
+      if(!v.studentName){ showErr(errBox, 'Ingresa tu nombre.'); return; }
+      if(usedAI && (!v.toolUsed || !v.whatLearned || !v.howVerified)){
+        showErr(errBox, 'Completa herramienta, qué aprendiste y cómo verificaste.'); return;
+      }
+      btn.disabled = true; btn.textContent = 'Enviando...';
+
+      const submission = {
+        courseName: c.courseName, teacherName: c.teacherName, teacherEmail: c.teacherEmail,
+        studentName: v.studentName, studentEmail: v.studentEmail || '',
+        usedAI, toolUsed: usedAI ? v.toolUsed : '—',
+        whatLearned: usedAI ? v.whatLearned : '—', howVerified: usedAI ? v.howVerified : '—',
+        submittedAt: new Date().toLocaleString('es-BO', { dateStyle:'long', timeStyle:'short' })
+      };
+
+      let emailResult = null;
+      if(c.emailjs){
+        emailResult = await sendViaEmailJS(c.emailjs, submission);
+      }
+
+      state.lastSubmission = submission;
+      state.lastEmailResult = emailResult;
+      state.view = 'studentSuccess';
+      render();
+    };
+    doc.appendChild(btn);
+    wrap.appendChild(doc);
+  }
+
+  async function sendViaEmailJS(cfg, s){
+    try{
+      const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json' },
+        body: JSON.stringify({
+          service_id: cfg.serviceId,
+          template_id: cfg.templateId,
+          user_id: cfg.publicKey,
+          template_params: {
+            to_email: s.teacherEmail,
+            to_name: s.teacherName,
+            course_name: s.courseName,
+            student_name: s.studentName,
+            student_email: s.studentEmail,
+            used_ai: s.usedAI ? 'Sí' : 'No',
+            tool_used: s.toolUsed,
+            what_learned: s.whatLearned,
+            how_verified: s.howVerified,
+            submitted_at: s.submittedAt
+          }
+        })
+      });
+      return { ok: res.ok, status: res.status };
+    }catch(e){
+      return { ok:false, status:0 };
+    }
+  }
+
+  function renderStudentSuccess(wrap){
+    const s = state.lastSubmission;
+    const er = state.lastEmailResult;
+    header(wrap, 'Estudiante', 'Declaración registrada', '');
+    const doc = el('div','doc');
+    const sw = el('div','seal-wrap');
+    sw.appendChild(el('div','seal','<span>Declarado<br>· ' + s.submittedAt.split(',')[0] + ' ·</span>'));
+    let statusText = 'El PDF quedó listo para descargar.';
+    if(er){ statusText = er.ok ? ('Correo enviado a ' + s.teacherEmail + '.') : 'No se pudo enviar el correo automáticamente; descarga el PDF y envíalo tú mismo.'; }
+    sw.appendChild(el('p','status-line', statusText));
+    doc.appendChild(sw);
+
+    const dl = el('button','btn','Descargar PDF de mi declaración');
+    dl.onclick = ()=> downloadPDF(s);
+    doc.appendChild(dl);
+
+    if(!er || !er.ok){
+      const NL = String.fromCharCode(10);
+      const mailBody = encodeURIComponent(
+        'Declaración de uso de IA' + NL + NL + 'Curso: ' + s.courseName +
+        NL + 'Estudiante: ' + s.studentName +
+        NL + '¿Utilizó IA?: ' + (s.usedAI?'Sí':'No') +
+        NL + 'Herramienta: ' + s.toolUsed +
+        NL + 'Qué aprendió: ' + s.whatLearned +
+        NL + 'Cómo verificó: ' + s.howVerified +
+        NL + 'Fecha: ' + s.submittedAt
+      );
+      const mail = el('a','btn secondary','Enviar por mi correo (adjunta el PDF)');
+      mail.style.display='block'; mail.style.textAlign='center'; mail.style.textDecoration='none'; mail.style.boxSizing='border-box';
+      mail.href = 'mailto:' + s.teacherEmail + '?subject=' + encodeURIComponent('Declaración de uso de IA — ' + s.studentName) + '&body=' + mailBody;
+      doc.appendChild(mail);
+    }
+
+    const home = el('button','btn secondary','Volver al inicio');
+    home.style.marginTop='10px';
+    home.onclick = ()=>{ state.view='home'; render(); };
+    doc.appendChild(home);
+
+    wrap.appendChild(doc);
+  }
+
+  function downloadPDF(s){
+    try{
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      let y = 20;
+      doc.setFont('helvetica','bold'); doc.setFontSize(16);
+      doc.text('Declaración de Uso de Inteligencia Artificial', 15, y); y+=10;
+      doc.setDrawColor(166,116,60); doc.line(15,y,195,y); y+=10;
+      doc.setFont('helvetica','normal'); doc.setFontSize(11);
+      const lines = [
+        ['Curso', s.courseName],
+        ['Docente', s.teacherName],
+        ['Estudiante', s.studentName],
+        ['¿Utilizó IA?', s.usedAI ? 'Sí' : 'No'],
+        ['Herramienta utilizada', s.toolUsed],
+        ['Fecha', s.submittedAt],
+      ];
+      lines.forEach(([k,v])=>{
+        doc.setFont('helvetica','bold'); doc.text(k + ':', 15, y);
+        doc.setFont('helvetica','normal');
+        const wrapped = doc.splitTextToSize(String(v), 130);
+        doc.text(wrapped, 70, y);
+        y += 8 * Math.max(1, wrapped.length);
+      });
+      y += 4;
+      doc.setFont('helvetica','bold'); doc.text('¿Qué aprendiste?', 15, y); y+=7;
+      doc.setFont('helvetica','normal');
+      let wl = doc.splitTextToSize(s.whatLearned, 180); doc.text(wl,15,y); y += 7*wl.length + 5;
+      doc.setFont('helvetica','bold'); doc.text('¿Cómo verificaste la respuesta?', 15, y); y+=7;
+      doc.setFont('helvetica','normal');
+      let hv = doc.splitTextToSize(s.howVerified, 180); doc.text(hv,15,y);
+      doc.save('Declaracion_IA_' + s.studentName.replace(/\\s+/g,'_') + '.pdf');
+    }catch(e){
+      alert('No se pudo generar el PDF en este momento.');
+    }
+  }
+
+  // ---------- form helpers ----------
+  function field(labelText, name, type, placeholder, value){
+    const wrap = el('div');
+    wrap.appendChild(el('label','',labelText));
+    const input = el('input','');
+    input.type = type; input.name = name; input.placeholder = placeholder || '';
+    if(value) input.value = value;
+    wrap.appendChild(input);
+    return wrap;
+  }
+  function fieldArea(labelText, name, placeholder){
+    const wrap = el('div');
+    wrap.appendChild(el('label','',labelText));
+    const ta = el('textarea','');
+    ta.name = name; ta.placeholder = placeholder || '';
+    wrap.appendChild(ta);
+    return wrap;
+  }
+  function collect(container, names){
+    const out = {};
+    names.forEach(n=>{
+      const i = container.querySelector('[name=' + n + ']');
+      out[n] = i ? i.value : '';
+    });
+    return out;
+  }
+  function showErr(box, msg, clear){
+    box.innerHTML = '';
+    if(!clear && msg) box.appendChild(el('div','error-box', msg));
+  }
+  function escapeHtml(str){
+    const d = document.createElement('div'); d.textContent = str; return d.innerHTML;
+  }
+
+  render();
+})();
+</script>
