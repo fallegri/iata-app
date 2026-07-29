@@ -15,7 +15,7 @@
     "build:client": "npm run build -w client",
     "build:server": "npm run build -w server",
     "build:shared": "npm run build -w shared",
-    "vercel-build": "npm run build -w shared && npm run build -w server && npm run build -w client",
+    "vercel-build": "npm run build -w shared && npm run build -w server && node scripts/build-api.mjs && npm run build -w client",
     "test": "npm run test -w server",
     "test:server": "npm run test -w server"
   },
@@ -31,5 +31,8 @@
     "express": "^4.18.0",
     "jsonwebtoken": "^9.0.0",
     "pg": "^8.22.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.1"
   }
 }
