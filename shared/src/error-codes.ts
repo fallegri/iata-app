@@ -1,0 +1,50 @@
+/**
+ * Standardized error codes for the IATA platform.
+ */
+
+export const ERROR_CODES = {
+  VALIDATION_FAILED: 'VALIDATION_FAILED',
+  AUTH_REQUIRED: 'AUTH_REQUIRED',
+  ACCESS_DENIED: 'ACCESS_DENIED',
+  NOT_FOUND: 'NOT_FOUND',
+  RATE_LIMITED: 'RATE_LIMITED',
+  ACCOUNT_LOCKED: 'ACCOUNT_LOCKED',
+  SERVICE_UNAVAILABLE: 'SERVICE_UNAVAILABLE',
+  AI_INVALID_KEY: 'AI_INVALID_KEY',
+  AI_TIMEOUT: 'AI_TIMEOUT',
+  AI_QUOTA_EXCEEDED: 'AI_QUOTA_EXCEEDED',
+  INVITE_INVALID: 'INVITE_INVALID',
+} as const;
+
+export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES];
+
+export interface ErrorDetail {
+  field: string;
+  rule: string;
+  message: string;
+}
+
+export interface ErrorResponse {
+  error: {
+    code: ErrorCode;
+    message: string;
+    details?: ErrorDetail[];
+  };
+}
+
+/**
+ * HTTP status codes mapped to error codes for convenience.
+ */
+export const ERROR_HTTP_STATUS: Record<ErrorCode, number> = {
+  VALIDATION_FAILED: 400,
+  AUTH_REQUIRED: 401,
+  ACCESS_DENIED: 403,
+  NOT_FOUND: 404,
+  RATE_LIMITED: 429,
+  ACCOUNT_LOCKED: 403,
+  SERVICE_UNAVAILABLE: 503,
+  AI_INVALID_KEY: 422,
+  AI_TIMEOUT: 504,
+  AI_QUOTA_EXCEEDED: 429,
+  INVITE_INVALID: 422,
+};
