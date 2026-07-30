@@ -19,7 +19,6 @@ await build({
   outfile: resolve(root, 'api/index.mjs'),
   external: [
     // Native modules that can't be bundled
-    'bcrypt',
     '@neondatabase/serverless',
     'pg-native',
   ],

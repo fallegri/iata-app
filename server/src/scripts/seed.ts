@@ -21,7 +21,7 @@
 
 import { config } from 'dotenv';
 import { resolve } from 'path';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { drizzle } from 'drizzle-orm/neon-serverless';
 import { Pool } from '@neondatabase/serverless';
 import * as schema from '../models/schema.js';
